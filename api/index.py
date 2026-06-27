@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 import requests
+import re
 import os
 
 app = FastAPI()
@@ -26,6 +27,25 @@ def get_tiktok_video(url):
         return r["data"]["play"]
     return None
 
+def get_instagram_video(url):
+    try:
+        r = requests.post(
+            "https://snapsave.app/action.php",
+            data={"url": url},
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Referer": "https://snapsave.app/"
+            },
+            timeout=8
+        )
+        links = re.findall(r'https://[^\s"\'<>]+\.mp4[^\s"\'<>]*', r.text)
+        if links:
+            return links[0]
+    except:
+        pass
+    return None
+
 @app.post("/api/index")
 async def webhook(req: Request):
     data = await req.json()
@@ -47,6 +67,15 @@ async def webhook(req: Request):
             send_video(chat_id, video_url)
         else:
             send_message(chat_id, "❌ ببوورە، نەمانتوانی ڤیدیۆکە دابگرین. تکایە لینکێکی تر تاقی بکەرەوە!")
+
+    elif "instagram.com" in text:
+        send_message(chat_id, "⏳ کەمێک چاوەڕوان بە... ڤیدیۆکەت بۆ ئامادە دەکرێت.")
+        video_url = get_instagram_video(text)
+        if video_url:
+            send_video(chat_id, video_url)
+        else:
+            send_message(chat_id, "❌ ببوورە، نەمانتوانی ڤیدیۆکە دابگرین. تکایە لینکێکی تر تاقی بکەرەوە!")
+
     else:
         send_message(chat_id, "⚠️ تکایە لینکێکی تیک تۆک یان ئینستاگرام بنێرە!")
 
