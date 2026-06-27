@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
 import requests
-import re
 import os
 
 app = FastAPI()
@@ -30,18 +29,19 @@ def get_tiktok_video(url):
 def get_instagram_video(url):
     try:
         r = requests.post(
-            "https://snapsave.app/action.php",
-            data={"url": url},
+            "https://api.cobalt.tools/",
+            json={"url": url, "videoQuality": "720"},
             headers={
-                "User-Agent": "Mozilla/5.0",
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Referer": "https://snapsave.app/"
+                "Accept": "application/json",
+                "Content-Type": "application/json"
             },
             timeout=8
         )
-        links = re.findall(r'https://[^\s"\'<>]+\.mp4[^\s"\'<>]*', r.text)
-        if links:
-            return links[0]
+        data = r.json()
+        if data.get("status") == "tunnel" or data.get("status") == "redirect":
+            return data.get("url")
+        if data.get("status") == "picker":
+            return data["picker"][0]["url"]
     except:
         pass
     return None
