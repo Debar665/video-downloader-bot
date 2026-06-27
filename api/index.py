@@ -37,19 +37,17 @@ async def webhook(req: Request):
         return {"ok": True}
 
     if text.startswith("/start"):
-        send_message(chat_id, "👋 Send me a TikTok or Instagram link!")
+        send_message(chat_id, "بەخێربێیت! 🚀\nلێرە دەتوانیت ڤیدیۆی ئینستاگرام و تیک تۆک دابگریت. 🔗 تەنها لینکەکە بنێرە و چەند چرکەیەک چاوەڕێ بکە!")
         return {"ok": True}
 
     if "tiktok.com" in text:
-        send_message(chat_id, "⏳ Downloading...")
+        send_message(chat_id, "⏳ کەمێک چاوەڕوان بە... ڤیدیۆکەت بۆ ئامادە دەکرێت.")
         video_url = get_tiktok_video(text)
         if video_url:
             send_video(chat_id, video_url)
         else:
-            send_message(chat_id, "❌ Failed. Try another link.")
-    elif "instagram.com" in text:
-        send_message(chat_id, "⚠️ Instagram coming soon!")
+            send_message(chat_id, "❌ ببوورە، نەمانتوانی ڤیدیۆکە دابگرین. تکایە لینکێکی تر تاقی بکەرەوە!")
     else:
-        send_message(chat_id, "⚠️ Send a valid TikTok or Instagram link.")
+        send_message(chat_id, "⚠️ تکایە لینکێکی تیک تۆک یان ئینستاگرام بنێرە!")
 
     return {"ok": True}
